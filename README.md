@@ -2,6 +2,7 @@
 
 [项目源代码地址](https://github.com/mudiyouyou/multi-terminal-bff)
 
+
 在工作中我们经常遇到为app，h5, outside api 开发不同的前置系统，往往同一个业务逻辑需要开发三种api的形式，为什么要这样呢？
 它们只是报文格式，加解密需求，会话形式不同等等而已。
 
@@ -74,7 +75,8 @@
     返回
     `{"count":1,"respCode":"00000","respDesc":"成功"}`
     
-    注：默认端口为8082  默认内部提供一个用于测试的计数器业务接口，使用会话(redis)存储当前计数器值。配置文件client-setting.json中设置clientId:2 采用Form提交返回Json，空加解密实现，使用cookie保存sessionid的形式
+    注：默认端口为8082  默认内部提供一个用于测试的计数器业务接口，使用会话(redis)存储当前计数器值。 
+   配置文件client-setting.json中设置clientId:2 采用Form提交返回Json，空加解密实现，使用cookie保存sessionid的形式
 
 ### 如何开发一个接口
 1. 在net.multi.terminal.bff.service下新建接口所在的模块，比如：test

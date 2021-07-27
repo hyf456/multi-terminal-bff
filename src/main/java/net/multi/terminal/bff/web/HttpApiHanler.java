@@ -31,48 +31,48 @@ import static net.multi.terminal.bff.core.util.NettyUtil.send;
 @ChannelHandler.Sharable
 @Component
 public class HttpApiHanler extends SimpleChannelInboundHandler<HttpObject> {
-    @Autowired
-    private ApiIdentityExtractor identityExtractor;
+	@Autowired
+	private ApiIdentityExtractor identityExtractor;
 
-    @Autowired
-    private ApiCoreProccessor proccessor;
+	@Autowired
+	private ApiCoreProccessor proccessor;
 
-    @Autowired
-    private HystrixConfig hystrixConfig;
+	@Autowired
+	private HystrixConfig hystrixConfig;
 
-    @Autowired
-    private ClientContextMgr clientContextMgr;
+	@Autowired
+	private ClientContextMgr clientContextMgr;
 
-    @Autowired
-    private ApiMappingService apiMapping;
+	@Autowired
+	private ApiMappingService apiMapping;
 
-    public HttpApiHanler() {
-        super(false);
-    }
+	public HttpApiHanler() {
+		super(false);
+	}
 
-    @Override
-    protected void channelRead0(ChannelHandlerContext nettyContext, HttpObject msg) throws Exception {
-        // 过滤Http全报文
-        if (!(msg instanceof FullHttpRequest)) {
-            return;
-        }
-        FullHttpRequest httpRequest = (FullHttpRequest) msg;
-        // 过滤POST请求报文
-        if (!"POST".equals(httpRequest.method().name())) {
-            throw new ApiException(MsgCode.E_11001, HttpResponseStatus.BAD_REQUEST);
-        }
-        // 获取clientId
-        ApiIdentity identity = identityExtractor.extract(httpRequest);
-        ClientContext clientContext = clientContextMgr.getContext(identity.getClientId());
-        apiMapping.route(identity.getApiName());
-        httpRequest.content().toString(Charset.forName("UTF-8"));
-        // 异步执行
-        new ApiHystrixCommand(identity, clientContext, proccessor, nettyContext, httpRequest, hystrixConfig).queue();
-    }
+	@Override
+	protected void channelRead0(ChannelHandlerContext nettyContext, HttpObject msg) throws Exception {
+		// 过滤Http全报文
+		if (!(msg instanceof FullHttpRequest)) {
+			return;
+		}
+		FullHttpRequest httpRequest = (FullHttpRequest) msg;
+		// 过滤POST请求报文
+		if (!"POST".equals(httpRequest.method().name())) {
+			throw new ApiException(MsgCode.E_11001, HttpResponseStatus.BAD_REQUEST);
+		}
+		// 获取clientId
+		ApiIdentity identity = identityExtractor.extract(httpRequest);
+		ClientContext clientContext = clientContextMgr.getContext(identity.getClientId());
+		apiMapping.route(identity.getApiName());
+		httpRequest.content().toString(Charset.forName("UTF-8"));
+		// 异步执行
+		new ApiHystrixCommand(identity, clientContext, proccessor, nettyContext, httpRequest, hystrixConfig).queue();
+	}
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable throwable) {
-        send(ctx, Optional.ofNullable(throwable.getMessage()).orElse(MsgCode.E_19999.getMessage()),
-                buildResponse(HttpResponseStatus.BAD_REQUEST, "text/plain;charset=UTF-8"));
-    }
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable throwable) {
+		send(ctx, Optional.ofNullable(throwable.getMessage()).orElse(MsgCode.E_19999.getMessage()),
+				buildResponse(HttpResponseStatus.BAD_REQUEST, "text/plain;charset=UTF-8"));
+	}
 }
